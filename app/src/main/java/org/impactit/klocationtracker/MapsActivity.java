@@ -43,6 +43,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.impactit.klocationtracker.apiclient.VolleyApiCall;
 import org.impactit.klocationtracker.apiclient.VolleyCallback;
@@ -104,6 +107,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        FirebaseApp.initializeApp(this);
+
         if (!isGooglePlayServicesAvailable()) {
 
             Toast.makeText(this, "Google Play Services is not available", Toast.LENGTH_LONG).show();
@@ -113,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
 
         points = new ArrayList<LatLng>();
 
-        createLocationRequest();
+//        createLocationRequest();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -352,7 +357,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
     public void onConnected(@Nullable Bundle bundle) {
 
         Log.d(TAG, "onConnected - isConnected ...............: " + mGoogleApiClient.isConnected());
-        startLocationUpdates();
+//        startLocationUpdates();
     }
 
     @Override
@@ -380,23 +385,23 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
 
     }
 
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        PendingResult<Status> pendingResult = LocationServices.FusedLocationApi
-                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        Log.d(TAG, "Location update started ..............: ");
-    }
+//    protected void startLocationUpdates() {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+//                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        PendingResult<Status> pendingResult = LocationServices.FusedLocationApi
+//                .requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//        Log.d(TAG, "Location update started ..............: ");
+//    }
 
     LatLng previouslatLng;
 
@@ -409,8 +414,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
 
         points.add(latLng); //added
         System.out.println("k ho" + latLng);
+        Data mData =new Data(location.getLatitude(),location.getLongitude());
+        FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference=firebaseDatabase.getReference();
+        databaseReference.child("Bus Number").child("busnumber2").setValue(mData);
 
-        new VolleyApiCall(this).volleyPost(url, getBody(), new VolleyCallback() {
+
+      /*  new VolleyApiCall(this).volleyPost(url, getBody(), new VolleyCallback() {
             @Override
             public void onSuccessResponse(String response) {
                 Log.d("Response", response);
@@ -419,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
                 }
 
             }
-        });
+        });*/
 
         previouslatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -519,7 +529,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener,
     public void onResume() {
         super.onResume();
         if (mGoogleApiClient.isConnected()) {
-            startLocationUpdates();
+//            startLocationUpdates();
             Log.d(TAG, "Location update resumed .....................");
         }
     }

@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "1067233152443",
+    "firebase_url": "https://bus-gps-tracker-cb8cd.firebaseio.com",
+    "project_id": "bus-gps-tracker-cb8cd",
+    "storage_bucket": "bus-gps-tracker-cb8cd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067233152443:android:1500bb02de601b51",
+        "android_client_info": {
+          "package_name": "org.impactit.klocationtracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1067233152443-7t1jvmjbuahmknp8r6cd2tbuu65eeo1l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.impactit.klocationtracker",
+            "certificate_hash": "efe47ada29aae13f13e70b73d20840297e42fda8"
+          }
+        },
+        {
+          "client_id": "1067233152443-5d2ra9r3euoisk843ivb7srrg8ktdjlq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAM0YTZVl_cPVZDXz7SpcWcehy5JPmHOZ4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1067233152443-5d2ra9r3euoisk843ivb7srrg8ktdjlq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1067233152443-9ekb1v73bc5cvrcuqaln6lkvvm8hi37u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.numas.GPSTrackerBroadcast"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

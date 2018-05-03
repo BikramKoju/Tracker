@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -16,6 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,11 +31,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class ParentMapActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -44,6 +51,12 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
     Location lastLocation;
     LocationRequest locationRequest;
     private static final int MY_LOCATION_REQUEST_CODE = 100;
+    Button seeDriver;
+
+    private ArrayList<LatLng> points;
+    Polyline line;
+    LatLng schoolBusLocation;
+
 
 
     @Override
@@ -57,6 +70,10 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent_map);
 
+        points = new ArrayList<LatLng>();
+        seeDriver=findViewById(R.id.see_driver);
+
+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkLocationPermission()) {
                 checkLocationSetting(this);
@@ -69,6 +86,14 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        seeDriver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(ParentMapActivity.this,DriverMapActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 
@@ -163,18 +188,25 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
     public void getLocation() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("ANDROID");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("IOS");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 LocationData mData = dataSnapshot.getValue(LocationData.class);
 //                mMap.clear();
                 if (mData != null) {
-                    LatLng schoolBusLocation = new LatLng(mData.getLatitude(), mData.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(schoolBusLocation).title("SchoolBus Marker"));
+                    schoolBusLocation = new LatLng(mData.getLatitude(), mData.getLongitude());
+                    System.out.println("fromMap"+schoolBusLocation);
+                   /* mMap.addMarker(new MarkerOptions().position(schoolBusLocation).title("SchoolBus Marker"));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(schoolBusLocation));
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(18));*/
+
+                   points.add(schoolBusLocation);
+
+                    redrawLine();
+
                 }
+
             }
 
             @Override
@@ -182,6 +214,28 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         });
     }
+
+ /*   private void redrawLine(LatLng schoolBusLocation) {
+//        mMap.clear();  //clears all Markers and Polylines
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+            options.add(schoolBusLocation);
+        line = mMap.addPolyline(options); //add Polyline
+    }*/
+
+
+    private void redrawLine() {
+
+//        mMap.clear();  //clears all Markers and Polylines
+
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        for (int i = 0; i < points.size(); i++) {
+            LatLng point = points.get(i);
+            System.out.println("points" + point);
+            options.add(point);
+        }
+        line = mMap.addPolyline(options); //add Polyline
+    }
+
 
 
     @Override
@@ -201,8 +255,6 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onLocationChanged(Location location) {
-
-
     }
 
     protected synchronized void buildGoogleApiclient() {
@@ -214,8 +266,6 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
 
         googleApiClient.connect();
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -246,4 +296,8 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+
+
+
 }

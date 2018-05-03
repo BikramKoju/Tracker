@@ -7,6 +7,12 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="See Parents"
+        android:id="@+id/see_parents"/>
+
 
     <fragment
         android:id="@+id/map"

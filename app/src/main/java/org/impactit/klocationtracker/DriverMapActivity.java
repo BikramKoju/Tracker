@@ -52,15 +52,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     Location lastLocation;
     LocationRequest locationRequest;
     private static final int MY_LOCATION_REQUEST_CODE = 100;
-
-
-
+    Button seeParents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_driver_map);
+        seeParents=findViewById(R.id.see_parents);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkLocationPermission()) {
@@ -75,6 +74,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        seeParents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(DriverMapActivity.this,ParentMapActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
     }
@@ -211,7 +218,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
         LocationData mdata = new LocationData(location.getLatitude(), location.getLongitude());
+
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         databaseReference.child("ANDROID").setValue(mdata);
     }

@@ -56,23 +56,27 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
     private ArrayList<LatLng> points;
     Polyline line;
     LatLng schoolBusLocation;
+    LatLng meh;
 
 
 
     @Override
     protected void onStart() {
         super.onStart();
+
         getLocation();
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent_map);
+//        meh=new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
 
         points = new ArrayList<LatLng>();
         seeDriver=findViewById(R.id.see_driver);
-
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkLocationPermission()) {
@@ -91,7 +95,9 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(ParentMapActivity.this,DriverMapActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -175,27 +181,28 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         buildGoogleApiclient();
         mMap.setMyLocationEnabled(true);
         //set parent current Location
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+       /* LatLng sydney = new LatLng(-34, 151);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Your Home Location"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
     }
 
     public void getLocation() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("IOS");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("ANDROID");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 LocationData mData = dataSnapshot.getValue(LocationData.class);
+
 //                mMap.clear();
                 if (mData != null) {
                     schoolBusLocation = new LatLng(mData.getLatitude(), mData.getLongitude());
+
                     System.out.println("fromMap"+schoolBusLocation);
                    /* mMap.addMarker(new MarkerOptions().position(schoolBusLocation).title("SchoolBus Marker"));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(schoolBusLocation));
@@ -204,6 +211,21 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
                    points.add(schoolBusLocation);
 
                     redrawLine();
+
+
+
+                    Location location1=new Location("");
+                    location1.setLatitude(27.6775943);
+                    location1.setLongitude(85.3600613);
+
+                    Location location2=new Location("");
+                    location2.setLatitude(schoolBusLocation.latitude);
+                    location2.setLongitude(schoolBusLocation.longitude);
+
+                    float distance=location1.distanceTo(location2);
+                    Toast.makeText(ParentMapActivity.this, "distance"+String.valueOf(distance), Toast.LENGTH_SHORT).show();
+
+
 
                 }
 
@@ -240,7 +262,15 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(locationRequest.PRIORITY_HIGH_ACCURACY);
 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
@@ -255,6 +285,10 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onLocationChanged(Location location) {
+        lastLocation=location;
+        LatLng parent = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(parent));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
     }
 
     protected synchronized void buildGoogleApiclient() {
@@ -298,6 +332,8 @@ public class ParentMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
 
-
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

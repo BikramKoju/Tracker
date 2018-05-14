@@ -79,7 +79,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(DriverMapActivity.this,ParentMapActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -254,5 +256,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }
